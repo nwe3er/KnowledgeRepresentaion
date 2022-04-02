@@ -1,4 +1,4 @@
-# Implementing a theorem prover for a clause logic using the resolution principle.
+# Implementing a theorem prover for a clause logic using the resolution principle
 
 Theorem prover for a clause logic using the resolution principle.
 

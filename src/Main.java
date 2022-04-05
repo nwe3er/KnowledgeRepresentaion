@@ -78,7 +78,7 @@ public class Main {
 
         // loop through the kb and print the clauses to the console
         for (String[] strings : kb) {
-            System.out.println(clauseCount + ". " + String.join(" ", strings) + " { }");
+            System.out.println(clauseCount + ". " + String.join(" ", strings) + " {}");
             clauseCount++;
         }
 
@@ -87,7 +87,7 @@ public class Main {
             String[] temp = new String[1];
             temp[0] = s;
             kb.add(temp);
-            System.out.println(clauseCount + ". " + String.join(" ", kb.get(kb.size() - 1)) + " { }");
+            System.out.println(clauseCount + ". " + String.join(" ", kb.get(kb.size() - 1)) + " {}");
             //update counter
             clauseCount++;
         }
@@ -110,7 +110,7 @@ public class Main {
                     // update clause counter
                     clauseCount++;
 
-                    System.out.print("Valid");
+                    System.out.println("Valid");
                     // exit program
                     System.exit(0);
 
@@ -138,7 +138,7 @@ public class Main {
             clause1 +=1;
         }
         // Print not valid to the console
-        System.out.print("Not Valid");
+        System.out.println("Fail");
     }
 
     // method to resolve the clauses

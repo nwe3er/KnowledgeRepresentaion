@@ -2,7 +2,7 @@
 
 Theorem prover for a clause logic using the resolution principle.
 
-Implemented a python program that proves whether a clause is entailed by a knowledge base.
+Implemented a Java program that proves whether a clause is entailed by a knowledge base.
 
 Uses the resolution principle to prove a clause is valid by contradiction.
 

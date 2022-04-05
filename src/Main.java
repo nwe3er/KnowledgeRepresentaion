@@ -2,12 +2,34 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
+/*-----------------------Analysis--------------------------------*
+
+Theorem prover for a clause logic using the resolution principle.
+
+Implemented a Java program that proves whether a clause is entailed by a knowledge base.
+
+Uses the resolution principle to prove a clause is valid by contradiction. Negates the clause
+
+to be proved and add it to the knowledge base, then deduces new clauses until contradiction or
+
+until no new clauses can be generated. The program takes exactly one argument from the command line:
+
+A knowledge base file that contains the initial knowledge base and the clause whose validity we want
+
+to test. The input file contains n lines organized as follows: the first n - 1 lines describe the
+
+initial KB, while line n contains the (original) clause to test. The literals of each clause are
+
+separated by a blank space, negated variables are indicated by the prefix ~.
+
+ */
+
 // Main class
 public class Main {
     public static void main(String[] args) {
         // list to store the kb
         ArrayList<String[]> kb = new ArrayList<>();
-        // path of the argument
+        // path of the argument passed
         String path1 = args[0];
         // clause to be proved
         String[] testClause;
@@ -60,86 +82,109 @@ public class Main {
             clauseCount++;
         }
 
-        // loop through test clause, add negation to kb and print the clause to the console
+        // loop through test clause, add to kb and print the clause to the console
         for (String s : testClause) {
             String[] temp = new String[1];
             temp[0] = s;
             kb.add(temp);
             System.out.println(clauseCount + ". " + String.join(" ", kb.get(kb.size() - 1)) + " { }");
+            //update counter
             clauseCount++;
         }
 
-        int cli = 1;
-        while (cli < clauseCount-1) {
-            int clj = 0;
-            while(clj < cli) {
-                ArrayList<String> result = resolveClause(kb.get(cli), kb.get(clj), kb);
+        // assign clause1 = 1
+        int clause1 = 1;
+
+        // loop until clause 1 < clause counter - 1
+        while (clause1 < clauseCount-1) {
+            int clause2 = 0;
+            // loop until clause 2 < clause 1
+            while(clause2 < clause1) {
+                // store the result returned from resolvedClause method
+                ArrayList<String> result = resolveClause(kb.get(clause1), kb.get(clause2), kb);
+                // if result is empty, update clause1 and clause2 and print the Contradiction to the console
                 if (result.isEmpty()) {
-                    int temp1 = cli+1;
-                    int temp2 = clj+1;
+                    int temp1 = clause1+1;
+                    int temp2 = clause2+1;
                     System.out.println(clauseCount + ". " + "Contradiction" + " {" + temp1 + ", " + temp2 + "}" );
+                    // update clause counter
                     clauseCount++;
 
                     System.out.print("Valid");
+                    // exit program
                     System.exit(0);
 
+                  // else if the results size is == 1 update clause2
                 } else if (result.get(0).equals("1")) {
-                    clj +=1;
+                    clause2 +=1;
                     continue;
+
+                  // else update clause1 and clause2 and print the clause to the console
                 } else {
                     String[] temp = result.toArray(new String[0]);
-                    int temp1 = cli+1;
-                    int temp2 = clj+1;
+                    int temp1 = clause1+1;
+                    int temp2 = clause2+1;
                     System.out.println(clauseCount + ". " + String.join(" ", result) + " {" + temp1 + ", " + temp2 +"}");
+                    // update counter
                     clauseCount += 1;
+                    // update the knowledge base
                     kb.add(temp);
 
                 }
-                clj += 1;
+                // update clause 2
+                clause2 += 1;
             }
-            cli +=1;
+            // update clause1
+            clause1 +=1;
         }
         // Print not valid to the console
         System.out.print("Not Valid");
     }
 
+    // method to resolve the clauses
     private static ArrayList<String> resolveClause(String[] clause1, String[] clause2, ArrayList<String[]> kb) {
 
         // string list declared to the size of the two clauses
         String[] combineClause = new String[clause1.length+ clause2.length];
 
-        // concat the two string arrays (clauses)
+        // concat the two string arrays (clause1 and clause2)
         System.arraycopy(clause1, 0, combineClause, 0, clause1.length );
         System.arraycopy(clause2, 0, combineClause, clause1.length, clause2.length );
 
-         LinkedHashMap<String, Integer> hashMap = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> hashMap = new LinkedHashMap<>();
 
+        // loop to store keys into the hashmap
         for (String s : combineClause) {
             if (!hashMap.containsKey(s)) {
                 hashMap.put(s, 0);
             }
         }
 
-         ArrayList<String> resolved = new ArrayList<>(hashMap.keySet());
-         ArrayList<String> resolved1 = new ArrayList<>(hashMap.keySet());
+        // set keys to resolved
+        ArrayList<String> resolved = new ArrayList<>(hashMap.keySet());
+        // clone the resolved key set
+        ArrayList<String> resolved1 = new ArrayList<>(hashMap.keySet());
 
+        // loop to see if the clauses are logically equivalent and removes it from the clauses
         for (String value : clause1) {
             for (String s : clause2) {
                 if (isNegated(value, s)) {
                     resolved.remove(value);
                     resolved.remove(s);
 
+                    // if resolve is empty, return an empty list
                     if (resolved.size() == 0) {
-                        ArrayList<String> bool = new ArrayList<>();
-                        return bool;
+                        return new ArrayList<>();
                     }
 
+                    // else if the clause evaluates to true, set the bool list size to 1
                     else if (evalTOTrue(resolved)) {
                         ArrayList<String> bool = new ArrayList<>();
                         bool.add("1");
                         return bool;
                     }
 
+                    // else if difference of the clauses is empty,  set the bool list size to 1
                     else {
                         for (String[] strings : kb) {
                             if (getDifference(resolved, strings).isEmpty()) {
@@ -148,7 +193,8 @@ public class Main {
                                 return bool;
                             }
                         }
-                         return resolved;
+                        // return the list
+                        return resolved;
                     }
                 }
             }
@@ -156,6 +202,7 @@ public class Main {
 
         ArrayList<String> s = new ArrayList<>();
 
+        // return s with size == 1 if (resolve == resolve 1)
         if (resolved.equals(resolved1)) s.add("1");
 
         return s;
@@ -163,14 +210,17 @@ public class Main {
 
     // gets the difference from list and returns that list
     private static ArrayList<String> getDifference(ArrayList<String> resolved, String[] clause1) {
-        // loop to convert the string array (clause1) and add to temp list
-        ArrayList<String> temp = new ArrayList<String>(Arrays.asList(clause1));
-        ArrayList<String> temp1 = new ArrayList<String>(resolved);
+        // list to store converted clause array
+        ArrayList<String> temp = new ArrayList<>(Arrays.asList(clause1));
+        // temp list to store the resolved clause
+        ArrayList<String> temp1 = new ArrayList<>(resolved);
+        // loop to remove duplicate
         for(String s : resolved){
             if(temp.contains(s))
                 temp1.remove(s);
         }
 
+        // loop to add difference
         for(String s : temp){
             if(!resolved.contains(s))
                 temp1.add(s);
